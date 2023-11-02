@@ -13,9 +13,14 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignupValidation } from "@/lib/validation";
 import { Link } from "react-router-dom";
-import { createUserAccount } from "@/lib/appwrite/api";
+import useToast from "@/hooks/useToast";
+import { useCreateUserAccount } from "@/lib/react-query/queriesAndMutation";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 const Signupform = () => {
+  const { toastError } = useToast();
+  const { mutateAsync: createUserAccount, isPending: isCreatingUser } =
+    useCreateUserAccount();
   // 1. Define your form.
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
@@ -34,6 +39,10 @@ const Signupform = () => {
     // ✅ This will be type-safe and validated.
     const newUser = await createUserAccount(values);
     console.log(newUser);
+    if (!newUser) {
+      return toastError("Sign up failed, please try again");
+    }
+    // const session = await signInAccount();
   }
   return (
     <Form {...form}>
@@ -102,7 +111,14 @@ const Signupform = () => {
             )}
           />
           <Button type="submit" className="shad-button_primary">
-            Sign Up
+            {isCreatingUser ? (
+              <>
+                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </>
+            ) : (
+              "Sign up"
+            )}
           </Button>
           <p className="text-small-regular text-light-2 text-center mt-2">
             Already have an account?

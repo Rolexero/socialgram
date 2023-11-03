@@ -1,5 +1,5 @@
 const Signinform = () => {
-  return <div>Signupform</div>;
+  return <div>Signinform</div>;
 };
 
 export default Signinform;

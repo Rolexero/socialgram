@@ -12,21 +12,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignupValidation } from "@/lib/validation";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useToast from "@/hooks/useToast";
-import { useCreateUserAccount } from "@/lib/react-query/queriesAndMutation";
+import {
+  useCreateUserAccount,
+  useSignInAccount,
+} from "@/lib/react-query/queriesAndMutation";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { useUserContext } from "@/context/AuthContext";
 
 const Signupform = () => {
   const { toastError } = useToast();
+  const navigate = useNavigate();
   const { mutateAsync: createUserAccount, isPending: isCreatingUser } =
     useCreateUserAccount();
+
+  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
+
+  const { mutateAsync: signInAccount, isPending: isSignIn } =
+    useSignInAccount();
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
     defaultValues: {
-      name: "",
-
+      fullname: "",
       username: "",
       email: "",
       password: "",
@@ -42,7 +52,23 @@ const Signupform = () => {
     if (!newUser) {
       return toastError("Sign up failed, please try again");
     }
-    // const session = await signInAccount();
+    const session = await signInAccount({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (!session) {
+      return toastError("Sign in failed, please try again");
+    }
+
+    const isLoggedIn = await checkAuthUser();
+
+    if (isLoggedIn) {
+      form.reset();
+      navigate("/");
+    } else {
+      return toastError("Sign in failed, please try again");
+    }
   }
   return (
     <Form {...form}>
@@ -60,7 +86,7 @@ const Signupform = () => {
         >
           <FormField
             control={form.control}
-            name="name"
+            name="fullname"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="shad-form_label">Name</FormLabel>
@@ -110,7 +136,11 @@ const Signupform = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="shad-button_primary">
+          <Button
+            type="submit"
+            className="shad-button_primary"
+            disabled={isCreatingUser}
+          >
             {isCreatingUser ? (
               <>
                 <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />

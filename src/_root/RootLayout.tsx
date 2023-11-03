@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Outlet } from "react-router-dom";
 
 const RootLayout = () => {
   return (
     <div>
       {" "}
-      <Button>Button</Button>
+      <Outlet />
     </div>
   );
 };

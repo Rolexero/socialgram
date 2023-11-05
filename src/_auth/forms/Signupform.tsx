@@ -29,7 +29,7 @@ const Signupform = () => {
 
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
 
-  const { mutateAsync: signInAccount, isPending: isSignIn } =
+  const { mutateAsync: signInAccount, isPending: isSignInPending } =
     useSignInAccount();
 
   // 1. Define your form.
@@ -139,9 +139,9 @@ const Signupform = () => {
           <Button
             type="submit"
             className="shad-button_primary"
-            disabled={isCreatingUser}
+            disabled={isCreatingUser || isUserLoading || isSignInPending}
           >
-            {isCreatingUser ? (
+            {isCreatingUser || isUserLoading || isSignInPending ? (
               <>
                 <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                 Please wait

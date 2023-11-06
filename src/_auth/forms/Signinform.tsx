@@ -48,7 +48,7 @@ const SigninForm = () => {
     if (isLoggedIn) {
       form.reset();
 
-      navigate("/");
+      navigate("/home");
     } else {
       toastError("Login faileddddddessss. Please try again.");
       return;

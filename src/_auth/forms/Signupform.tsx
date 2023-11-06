@@ -63,7 +63,7 @@ const Signupform = () => {
     const isLoggedIn = await checkAuthUser();
     if (isLoggedIn) {
       form.reset();
-      navigate("/");
+      navigate("/home");
     } else {
       return toastError("Sign in failedededed, please try again");
     }

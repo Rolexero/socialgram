@@ -5,11 +5,13 @@ import { AuthProvider } from "./context/AuthContext";
 import { QueryProvider } from "./lib/react-query/queryProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <QueryProvider>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </QueryProvider>
-  </BrowserRouter>
+  <>
+    <BrowserRouter>
+      <QueryProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </QueryProvider>
+    </BrowserRouter>
+  </>
 );

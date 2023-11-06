@@ -40,26 +40,24 @@ const SigninForm = () => {
     const session = await signInAccount(user);
 
     if (!session) {
-      toastError("Login failed. Please try again.");
-
+      toastError("Login failededsss. Please try again.");
       return;
     }
 
     const isLoggedIn = await checkAuthUser();
-
     if (isLoggedIn) {
       form.reset();
 
       navigate("/");
     } else {
-      toastError("Login failed. Please try again.");
+      toastError("Login faileddddddessss. Please try again.");
       return;
     }
   };
 
   return (
     <Form {...form}>
-      <div className="sm:w-420 flex-center flex-col">
+      <div className="w-[85%] sm:w-420 flex-center flex-col">
         <img src="/assets/images/logo.svg" alt="logo" />
 
         <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">

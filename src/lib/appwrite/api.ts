@@ -39,17 +39,15 @@ export async function saveUserToDB(user: {
   username?: string;
 }) {
   try {
-    console.log(appwriteConfig.databaseId, appwriteConfig.userCollectionId);
     const newUser = await database.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
       ID.unique(),
       user
     );
-    console.log(newUser, "newUser");
     return newUser;
   } catch (error) {
-    console.log("an error here");
+    console.log("error");
   }
 }
 
@@ -78,7 +76,6 @@ export async function getAccount() {
 export async function getCurrentUser() {
   try {
     const currentAccount = await getAccount();
-
     if (!currentAccount) throw Error;
 
     const currentUser = await database.listDocuments(
@@ -93,5 +90,16 @@ export async function getCurrentUser() {
   } catch (error) {
     console.log(error);
     return null;
+  }
+}
+
+// ============================== SIGN OUT
+export async function signOutAccount() {
+  try {
+    const session = await account.deleteSession("current");
+
+    return session;
+  } catch (error) {
+    console.log(error);
   }
 }

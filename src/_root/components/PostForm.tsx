@@ -27,16 +27,17 @@ type PostFormProps = {
 };
 
 const PostForm = ({ post, action }: PostFormProps) => {
+  console.log(post);
   const { user } = useUserContext();
   const navigate = useNavigate();
   const { toastError, toastSuccess } = useToast();
   const form = useForm<z.infer<typeof PostValidation>>({
     resolver: zodResolver(PostValidation),
     defaultValues: {
-      caption: "",
+      caption: post?.caption ? post?.caption : "",
       file: [],
-      location: "",
-      tags: "",
+      location: post?.location ? post?.location : "",
+      tags: post?.tags ? post?.tags : "",
     },
   });
 

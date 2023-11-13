@@ -19,7 +19,10 @@ import FileUploader from "@/components/shared/FileUploader";
 import useToast from "@/hooks/useToast";
 import { useUserContext } from "@/context/AuthContext";
 import { Models } from "appwrite";
-import { useCreatePost } from "@/lib/react-query/queriesAndMutation";
+import {
+  useCreatePost,
+  useUpdatePost,
+} from "@/lib/react-query/queriesAndMutation";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -27,7 +30,7 @@ type PostFormProps = {
 };
 
 const PostForm = ({ post, action }: PostFormProps) => {
-  console.log(post);
+  console.log(post?.tags);
   const { user } = useUserContext();
   const navigate = useNavigate();
   const { toastError, toastSuccess } = useToast();
@@ -37,7 +40,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
       caption: post?.caption ? post?.caption : "",
       file: [],
       location: post?.location ? post?.location : "",
-      tags: post?.tags ? post?.tags : "",
+      tags: post?.tags ? post?.tags.toString() : "",
     },
   });
 
@@ -45,7 +48,26 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const { mutateAsync: createPost, isPending: isLoadingCreate } =
     useCreatePost();
 
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } =
+    useUpdatePost();
+
   const handleSubmit = async (value: z.infer<typeof PostValidation>) => {
+    // ACTION = UPDATE
+    if (post && action === "Update") {
+      const updatedPost = await updatePost({
+        ...value,
+        postId: post.$id,
+        imageId: post.imageId,
+        imageUrl: post.imageUrl,
+      });
+
+      if (!updatedPost) {
+        toastError(`${action} post failed. Please try again.`);
+      }
+      toastSuccess(`${action} post successfully`);
+
+      return navigate(`/posts/${post.$id}`);
+    }
     // ACTION = CREATE
     const newPost = await createPost({
       ...value,
@@ -146,11 +168,12 @@ const PostForm = ({ post, action }: PostFormProps) => {
           <Button
             type="submit"
             className="shad-button_primary whitespace-nowrap"
-            disabled={isLoadingCreate}
+            disabled={isLoadingCreate || isLoadingUpdate}
           >
-            {isLoadingCreate && (
-              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-            )}
+            {isLoadingCreate ||
+              (isLoadingUpdate && (
+                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+              ))}
             {action} Post
           </Button>
         </div>

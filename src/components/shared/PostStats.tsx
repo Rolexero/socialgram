@@ -24,7 +24,8 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
 
   const { mutate: likePost } = useLikePost();
   const { mutate: savePost, isPending } = useSavePost();
-  const { mutate: deleteSavePost } = useDeleteSavedPost();
+  const { mutate: deleteSavePost, isPending: isDeleting } =
+    useDeleteSavedPost();
 
   const { data: currentUser } = useGetCurrentUser();
 
@@ -92,7 +93,7 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
       </div>
 
       <div className="flex gap-2">
-        {isPending ? (
+        {isPending || isDeleting ? (
           <Loader />
         ) : (
           <img

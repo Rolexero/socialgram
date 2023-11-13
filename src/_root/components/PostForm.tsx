@@ -16,9 +16,20 @@ import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import FileUploader from "@/components/shared/FileUploader";
+import useToast from "@/hooks/useToast";
+import { useUserContext } from "@/context/AuthContext";
+import { Models } from "appwrite";
+import { useCreatePost } from "@/lib/react-query/queriesAndMutation";
 
-const PostForm = () => {
+type PostFormProps = {
+  post?: Models.Document;
+  action: "Create" | "Update";
+};
+
+const PostForm = ({ post, action }: PostFormProps) => {
+  const { user } = useUserContext();
   const navigate = useNavigate();
+  const { toastError, toastSuccess } = useToast();
   const form = useForm<z.infer<typeof PostValidation>>({
     resolver: zodResolver(PostValidation),
     defaultValues: {
@@ -29,8 +40,23 @@ const PostForm = () => {
     },
   });
 
-  const handleSubmit = (value: z.infer<typeof PostValidation>) => {
-    console.log(value);
+  // Query
+  const { mutateAsync: createPost, isPending: isLoadingCreate } =
+    useCreatePost();
+
+  const handleSubmit = async (value: z.infer<typeof PostValidation>) => {
+    // ACTION = CREATE
+    const newPost = await createPost({
+      ...value,
+      userId: user.id,
+    });
+
+    if (!newPost) {
+      toastError(`${action} post failed. Please try again.`);
+    } else {
+      toastSuccess(`${action} post successfully`);
+      navigate("/home");
+    }
   };
 
   return (
@@ -63,7 +89,10 @@ const PostForm = () => {
             <FormItem>
               <FormLabel className="shad-form_label">Add Photos</FormLabel>
               <FormControl>
-                <FileUploader fieldChange={field.onChange} mediaUrl={""} />
+                <FileUploader
+                  fieldChange={field.onChange}
+                  mediaUrl={post?.imageUrl}
+                />
               </FormControl>
               <FormMessage className="shad-form_message" />
             </FormItem>
@@ -116,10 +145,12 @@ const PostForm = () => {
           <Button
             type="submit"
             className="shad-button_primary whitespace-nowrap"
-            // disabled={isLoadingCreate || isLoadingUpdate}
+            disabled={isLoadingCreate}
           >
-            {/* {<ReloadIcon className="mr-2 h-4 w-4 animate-spin" />} */}
-            {"Update"} Post
+            {isLoadingCreate && (
+              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            {action} Post
           </Button>
         </div>
       </form>
